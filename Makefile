@@ -3,6 +3,12 @@ export
 
 export PROJECT_ROOT=$(shell pwd)
 
+start-app:
+	@docker compose up -d --build security-golang-app
+
+finish-app:
+	@docker compose down security-golang-app
+
 start-postgres:
 	@docker compose up -d security-postgres-db
 
@@ -51,3 +57,15 @@ start-port-forwarder:
 
 finish-port-forwarder:
 	@docker compose down security-postgres-port-forwarder
+
+generate-mocks:
+	@go generate ./...
+
+start-unit-tests:
+	@go test -v ./internal/features/service
+
+start-integration-tests:
+	@go test -v -tags=integration ./internal/features/repository/postgres
+
+generate-https-certc:
+	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt -subj "/CN=localhost"
